@@ -1,0 +1,32 @@
+{
+  "name": "test-7k-sdk-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "prettier": "npx prettier --write ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@mysten/sui": "^1.25.0",
+    "chalk": "^5.4.1",
+    "child_process": "^1.0.2",
+    "colors": "^1.4.0",
+    "dotenv": "^16.4.7",
+    "figlet": "^1.8.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@7kprotocol/sdk-ts": "^2.3.7",
+    "@mysten/sui.js": "^0.54.1",
+    "@types/figlet": "^1.7.0",
+    "@types/node": "^22.13.14",
+    "@types/prompts": "^2.4.9",
+    "prettier": "3.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  }
+}

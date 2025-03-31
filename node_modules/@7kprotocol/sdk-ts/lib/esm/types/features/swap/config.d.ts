@@ -1,0 +1,4 @@
+import { Config } from "../../types/aggregator";
+export declare const DEFAULT_CONFIG: Config;
+export declare function getConfig(): Promise<Config>;
+//# sourceMappingURL=config.d.ts.map
