@@ -11,6 +11,7 @@ const SEED_PHRASES = process.env.SEED_PHRASES?.split(',') || [];
 const SUI_CONTRACT = process.env.SUI_CONTRACT || '';
 const USDC_CONTRACT = process.env.USDC_CONTRACT || '';
 const USDT_CONTRACT = process.env.USDT_CONTRACT || '';
+const WAL_CONTRACT = process.env.WAL_CONTRACT || '0x356a26eb9e012a68958082340d4c4116e7f55615cf27affcff209cf0ae544f59::wal::WAL';
 
 async function executeSwap(client: SuiClient, keyPair: Ed25519Keypair, sender: string, walletAddress: string, tokenIn: string, tokenOut: string, amountIn: string): Promise<string> {
     try {
@@ -83,32 +84,40 @@ async function processWallet(client: SuiClient, walletIndex: number) {
         const percentage = Math.random() * (50 - 30) + 30;
         const amountInSui = Math.floor(suiBalance * percentage / 100).toString();
 
-        console.log(`Swapping ${percentage.toFixed(2)}% of SUI (${Number(amountInSui) / 1e9} SUI) to USDC...`);
+        // Define swap routes
+        const swapRoutes = [
+            { tokenIn: SUI_CONTRACT, tokenOut: WAL_CONTRACT, amountIn: amountInSui },
+            { tokenIn: WAL_CONTRACT, tokenOut: SUI_CONTRACT, amountIn: '0' }, // Amount will be set later
+            { tokenIn: SUI_CONTRACT, tokenOut: USDT_CONTRACT, amountIn: amountInSui },
+            { tokenIn: USDT_CONTRACT, tokenOut: SUI_CONTRACT, amountIn: '0' }, // Amount will be set later
+            { tokenIn: SUI_CONTRACT, tokenOut: USDC_CONTRACT, amountIn: amountInSui },
+            { tokenIn: USDC_CONTRACT, tokenOut: SUI_CONTRACT, amountIn: '0' }, // Amount will be set later
+        ];
 
-        // SUI to USDC
-        const suiToUsdcTxHash = await executeSwap(client, keyPair, sender, walletAddress, SUI_CONTRACT, USDC_CONTRACT, amountInSui);
-        console.log(`Transaction Hash: https://suiscan.xyz/mainnet/tx/${suiToUsdcTxHash}`);
-        await new Promise(resolve => setTimeout(resolve, 30000));
+        // Execute swaps
+        for (const route of swapRoutes) {
+            // Wait for a random time between 15 and 30 seconds before each swap
+            const waitTime = Math.floor(Math.random() * (30 - 15 + 1) + 15) * 1000;
+            console.log(`Waiting for ${waitTime / 1000} seconds before the next swap...`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
 
-        // Get USDC balance
-        let usdcBalance = await getBalance(client, walletAddress, USDC_CONTRACT);
-        console.log(`USDC: ${(usdcBalance / 1e6).toFixed(2)}`);
-
-        // USDC to USDT
-        console.log("Swapping USDC to USDT...");
-        const usdcToUsdtTxHash = await executeSwap(client, keyPair, sender, walletAddress, USDC_CONTRACT, USDT_CONTRACT, usdcBalance.toString());
-        console.log(`Transaction Hash: https://suiscan.xyz/mainnet/tx/${usdcToUsdtTxHash}`);
-        await new Promise(resolve => setTimeout(resolve, 30000));
-
-        // Get USDT balance
-        let usdtBalance = await getBalance(client, walletAddress, USDT_CONTRACT);
-        console.log(`USDT: ${(usdtBalance / 1e6).toFixed(2)}`);
-
-        // USDT to SUI
-        console.log("Swapping USDT to SUI...");
-        const usdtToSuiTxHash = await executeSwap(client, keyPair, sender, walletAddress, USDT_CONTRACT, SUI_CONTRACT, usdtBalance.toString());
-        console.log(`Transaction Hash: https://suiscan.xyz/mainnet/tx/${usdtToSuiTxHash}`);
-        await new Promise(resolve => setTimeout(resolve, 30000));
+            if (route.tokenIn === SUI_CONTRACT) {
+                // For SUI to other token swaps, use the calculated amount
+                console.log(`Swapping ${percentage.toFixed(2)}% of SUI (${Number(route.amountIn) / 1e9} SUI) to ${route.tokenOut}...`);
+                const txHash = await executeSwap(client, keyPair, sender, walletAddress, route.tokenIn, route.tokenOut, route.amountIn);
+                console.log(`Transaction Hash: https://suiscan.xyz/mainnet/tx/${txHash}`);
+            } else {
+                // For other token to SUI swaps, get the balance of the token first
+                const tokenBalance = await getBalance(client, walletAddress, route.tokenIn);
+                if (tokenBalance > 0) {
+                    console.log(`Swapping all ${route.tokenIn} to SUI...`);
+                    const txHash = await executeSwap(client, keyPair, sender, walletAddress, route.tokenIn, route.tokenOut, tokenBalance.toString());
+                    console.log(`Transaction Hash: https://suiscan.xyz/mainnet/tx/${txHash}`);
+                } else {
+                    console.log(`No ${route.tokenIn} balance to swap.`);
+                }
+            }
+        }
 
         // Get final SUI balance
         suiBalance = await getBalance(client, walletAddress, SUI_CONTRACT);
