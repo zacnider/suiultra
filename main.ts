@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import figlet from 'figlet';
 import prompts from 'prompts';
 import { execute as execute7kswap } from './7kswap'; // 7kswap dosyası
@@ -6,7 +5,7 @@ import readline from 'readline';
 
 // Banner fonksiyonu
 function printBanner() {
-    console.log(chalk.blue(figlet.textSync('Sui Trading Bot', { horizontalLayout: 'full' })));
+    console.log(figlet.textSync('Sui Trading Bot', { horizontalLayout: 'full' }));
 }
 
 // Modüller listesi
@@ -24,9 +23,9 @@ function waitRandomTime() {
 
 async function runModules() {
     for (const module of modules) {
-        console.log(chalk.green(`Running ${module.name} module...`));
+        console.log(`Running ${module.name} module...`);
         await module.execute();
-        console.log(chalk.green(`${module.name} module completed.`));
+        console.log(`${module.name} module completed.`);
     }
 }
 
@@ -34,7 +33,7 @@ async function main() {
     printBanner();
 
     // Kullanıcıdan modül listesini göster
-    console.log(chalk.yellow('Available modules:'));
+    console.log('Available modules:');
     modules.forEach(module => console.log(`- ${module.name}`));
 
     // Kullanıcıdan sonsuz döngü modu seçimi
@@ -46,7 +45,7 @@ async function main() {
     });
 
     if (infiniteLoopResponse.infiniteLoop) {
-        console.log(chalk.yellow('Running in infinite loop mode. Press Ctrl+C to stop.'));
+        console.log('Running in infinite loop mode. Press Ctrl+C to stop.');
 
         const rl = readline.createInterface({
             input: process.stdin,
@@ -55,7 +54,7 @@ async function main() {
 
         // SIGINT sinyalini yakala ve programı sonlandır
         process.on('SIGINT', () => {
-            console.log(chalk.yellow('\nInfinite loop mode stopped.'));
+            console.log('\nInfinite loop mode stopped.');
             rl.close();
             process.exit(0);
         });
@@ -63,18 +62,18 @@ async function main() {
         while (true) {
             try {
                 await runModules();
-                console.log(chalk.yellow('Waiting for a random time between 1-3 minutes before running the next cycle...'));
+                console.log('Waiting for a random time between 1-3 minutes before running the next cycle...');
                 await waitRandomTime();
             } catch (error) {
-                console.error(chalk.red('An error occurred:'), error);
-                console.log(chalk.yellow('Waiting for a random time between 1-3 minutes before retrying...'));
+                console.error('An error occurred:', error);
+                console.log('Waiting for a random time between 1-3 minutes before retrying...');
                 await waitRandomTime();
             }
         }
     } else {
-        console.log(chalk.yellow('Running in single run mode...'));
+        console.log('Running in single run mode...');
         await runModules();
-        console.log(chalk.green('Single run completed.'));
+        console.log('Single run completed.');
     }
 }
 
