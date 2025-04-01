@@ -13,10 +13,10 @@ const modules = [
     { name: '7kswap', execute: execute7kswap }
 ];
 
-// Rastgele bir süre bekleme fonksiyonu (1-3 dakika arası)
+// Rastgele bir süre bekleme fonksiyonu (10-30 saniye arası)
 function waitRandomTime() {
-    const min = 1 * 60 * 1000; // 1 dakika
-    const max = 3 * 60 * 1000; // 3 dakika
+    const min = 10 * 1000; // 10 saniye
+    const max = 30 * 1000; // 30 saniye
     const randomTime = Math.floor(Math.random() * (max - min + 1) + min);
     return new Promise(resolve => setTimeout(resolve, randomTime));
 }
