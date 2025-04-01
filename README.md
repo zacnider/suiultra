@@ -13,7 +13,7 @@ sudo apt install git
 
 1. **Clone the Repository**
    ```bash
-   git clone [https://github.com/zacnider/MonUltra.git](https://github.com/zacnider/suiultra.git)
+   git clone https://github.com/zacnider/suiultra.git
    cd suiultra
    ```
 2. **Set address and seed**
