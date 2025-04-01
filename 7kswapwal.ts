@@ -24,7 +24,7 @@ async function executeSwap(client: SuiClient, keyPair: Ed25519Keypair, sender: s
         const { tx } = await buildTx({
             quoteResponse,
             accountAddress: walletAddress,
-            slippage: 0.01,
+            slippage: 0.005,
             commission: {
                 partner: walletAddress,
                 commissionBps: 0,
@@ -32,7 +32,7 @@ async function executeSwap(client: SuiClient, keyPair: Ed25519Keypair, sender: s
         });
 
         tx.setSender(sender);
-        tx.setGasBudget(20000000);
+        tx.setGasBudget(10000000);
 
         const bytes = await tx.build({
             client,
