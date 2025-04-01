@@ -32,7 +32,7 @@ async function executeSwap(client: SuiClient, keyPair: Ed25519Keypair, sender: s
         });
 
         tx.setSender(sender);
-        tx.setGasBudget(10000000);
+        tx.setGasBudget(13000000);
 
         const bytes = await tx.build({
             client,
